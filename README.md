@@ -1,4 +1,4 @@
-ChatApp
+<h1>ChatApp</h1>
 
 Start without compile to js file
 
