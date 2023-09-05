@@ -1,34 +1,25 @@
-import messeges from "./models/messegs";
+import { Room } from './models/room';
+import { Message } from './models/message';
 
-export function paresMesseges(inputMesseges: string): messeges[] {
-  let allRoomsMesseges: messeges[] = [];
-  const chatInfo: string[] | null = returnChatInfoArray(inputMesseges);
-  const messegesArray: string[] = returnMessegArray(inputMesseges);
-  let index: number = 1;
-  chatInfo?.forEach((element) => {
-    const id: string = element.split(/\@/)[1];
-    const ANYTHING: string = element.split(/\@/)[0];
-    const messeg: messeges = new messeges(
-      ANYTHING,
-      id,
-      returnMesseg(messegesArray, index)
-    );
-    allRoomsMesseges.push(messeg);
-    index++;
-  });
-  return allRoomsMesseges;
+export function MyMessagesServices(inputMesseges: string[]): Room[] {
+  let allRooms: Room[] = [];
+  for (const messeg of inputMesseges) {
+    let newMesseg: string[] = paresMessage(messeg);
+    let room: Room | undefined = allRooms.find(({ id }) => id === newMesseg[1]);
+    if (room !== undefined) {
+      room.messages.push(new Message(newMesseg[2]));
+    } else {
+      let newRoom: Room = new Room(newMesseg[0], newMesseg[1], [new Message(newMesseg[2])]);
+      allRooms.push(newRoom);
+    }
+  }
+  return allRooms;
 }
 
-function returnMesseg(allMesseges: string[], index: number): string {
-  return allMesseges[index];
-}
-
-function returnMessegArray(inputSting: string): string[] {
-  const spliter: RegExp = /[^@\s]+\@+[A-Za-z0-9_\-]+:/gm;
-  return inputSting.split(spliter);
-}
-
-function returnChatInfoArray(inputSting: string): string[] | null {
-  const findingRegExp: RegExp = /[^@\s]+\@+[A-Za-z0-9_\-]+/gm;
-  return inputSting.match(findingRegExp);
+function paresMessage(inputMessege: string): string[] {
+  const findingRegExp: RegExp = /(?<=^\S+)\s/gm;
+  let paresedArray: string[] = [];
+  paresedArray = inputMessege.split(findingRegExp);
+  paresedArray = [...paresedArray[0].split('@'), paresedArray[1]];
+  return paresedArray;
 }

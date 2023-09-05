@@ -1,28 +1,13 @@
-import messeges from "./models/messegs";
+import { Room } from './models/room';
 
-export function outputMesseges(messegesArray: messeges[]): string {
-  let outputText: string = "";
-  let previusElement: messeges = new messeges("", "", "");
-  messegesArray.sort((a, b) => {
-    let fa = a.ID,
-      fb = b.ID;
-
-    if (fa < fb) {
-      return -1;
+export function outputMessages(roomsArray: Room[]): string {
+  let outputText: string = '';
+  for (const room of roomsArray) {
+    outputText += '\nRoom ' + room.id + ' messages: \n\n';
+    for (const message of room.messages) {
+      outputText += message.message + '\n';
     }
-    if (fa > fb) {
-      return 1;
-    }
-    return 0;
-  });
-  messegesArray.forEach((element) => {
-    if (element.ID !== previusElement.ID) {
-      outputText += "\n" + element.ID + ":\n\n" + element.MESSAGE + "\n";
-    } else {
-      outputText += element.MESSAGE + "\n";
-    }
-    previusElement = element;
-  });
+  }
 
   return outputText;
 }
