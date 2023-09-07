@@ -2,7 +2,7 @@ import { Room } from './models/room';
 import { MyMessagesServices } from './inputFunctions';
 import { outputMessages } from './outputFunctions';
 
-const input: string[] = [
+/*const input: string[] = [
   '-@numb Hello?',
   "-@happy Here's a little song I wrote",
   '-@numb Hello ...',
@@ -18,11 +18,11 @@ const input: string[] = [
   "-@son Don't you cry no more",
   '-@numb Is there anyone home?',
   '-@son BaDa-Da-Dum BaDa-Da-Da-Dum',
-];
+];*/
 
-/*const input: string[] = [
-  'roger@numb Hello?',
-  "bobby@happy Here's a little song I wrote",
+const input: string[] = [
+  '@numb Hello?',
+  "bobby:test@happy Here's a little song I wrote",
   'echo@numb Hello ...',
   'steve@son Carry on, my wayward son',
   'echo@numb Hello ...',
@@ -36,7 +36,7 @@ const input: string[] = [
   "steve@son Don't you cry no more",
   'roger@numb Is there anyone home?',
   'kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum',
-];*/
+];
 
 const state: Room[] = MyMessagesServices(input);
 
