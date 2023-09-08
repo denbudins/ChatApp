@@ -9,6 +9,11 @@ export function MyMessagesServices(inputMesseges: string[]): Room[] {
     if (room === undefined) {
       room = new Room(newMesseg[2], []);
       allRooms.push(room);
+      room.messages.push(new Message(undefined, `"${newMesseg[0]}" joined the room`, 'SERVER', new Date()));
+    } else {
+      if (room.messages.find(({ userName }) => userName === newMesseg[0]) === undefined) {
+        room.messages.push(new Message(undefined, `"${newMesseg[0]}" joined the room`, 'SERVER', new Date()));
+      }
     }
     room.messages.push(new Message(newMesseg[1], newMesseg[3], newMesseg[0], new Date()));
   }

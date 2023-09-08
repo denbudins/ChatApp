@@ -1,3 +1,3 @@
 export class Message {
-  constructor(public anything: string, public message: string, public userName: string, public messageTime: Date) {}
+  constructor(public anything: string | undefined, public message: string, public userName: string | undefined, public messageTime: Date) {}
 }
