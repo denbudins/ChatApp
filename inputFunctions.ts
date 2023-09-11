@@ -62,7 +62,7 @@ function splitOnRandomPieces(stringToSplit: string, separator: string, limit: nu
   return splittedArray;
 }
 
-async function wait(interval_in_ms: number): Promise<any> {
+async function wait(interval_in_ms: number): Promise<undefined> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(undefined);
