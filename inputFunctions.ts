@@ -19,9 +19,7 @@ function MyMessagesServices(state: Room[], inputMesseges: string): void {
     outputMessages(`Announcement in room "${newMesseg[2]}"`, newMesseg[0], `"${newMesseg[0]}" joined the room`);
     outputMessages(`"${newMesseg[0]}" posted in "${newMesseg[2]}"`, newMesseg[0], newMesseg[3]);
   } else {
-    const uniqueUserNames: (string | undefined)[] = [
-      ...new Set(room.messages.filter(message => message.userName !== 'SERVER').map(message => message.userName)),
-    ];
+    let uniqueUserNames: (string | undefined)[] = [...new Set(room.messages.filter(message => message.userName !== 'SERVER').map(message => message.userName))];
     if (room.messages.find(({ userName }) => userName === newMesseg[0]) === undefined) {
       uniqueUserNames.push(newMesseg[0]);
       room.messages.push(new Message(undefined, `"${newMesseg[0]}" joined the room`, 'SERVER', new Date()));
@@ -63,7 +61,7 @@ function splitOnRandomPieces(stringToSplit: string, separator: string, limit: nu
 }
 
 async function wait(interval_in_ms: number): Promise<undefined> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve(undefined);
     }, interval_in_ms);
