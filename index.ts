@@ -1,7 +1,5 @@
-import { Room } from './models/room';
-import { msgCallbackFn } from './inputFunctions';
-
-let state: Room[] = [];
+import { Server } from './server/server';
+import { wait } from './utils/utils';
 
 (async () => {
   const msgs: string[] = [
@@ -22,7 +20,26 @@ let state: Room[] = [];
     'kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum',
   ];
 
+  const msgCallbackFn = async (serverPost: boolean, toUser: string, fromRoom: string, sender: string | undefined, msgForSend: string): Promise<undefined> => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        if (serverPost) {
+          console.log(`To "${toUser}" ::: Announcement in room "${fromRoom}": ${msgForSend}`);
+        } else {
+          console.log(`To "${toUser}" ::: "${sender}" posted in "${fromRoom}": "${msgForSend}"`);
+        }
+        resolve(undefined);
+      }, 500);
+    });
+  };
+
+  const server: Server = new Server([], msgCallbackFn);
+
   for (const msg of msgs) {
-    await msgCallbackFn(state, msg);
+    await wait(500 + 500 * Math.random());
+
+    console.log(`POSTing message: "${msg}"`);
+
+    server.MyMessagesServices(msg);
   }
 })();

@@ -1,3 +1,5 @@
+import { User } from './users';
+
 export class Message {
-  constructor(public anything: string | undefined, public message: string, public userName: string | undefined, public messageTime: Date) {}
+  constructor(public anything: string | undefined, public message: string, public user: User | undefined, public messageTime: Date) {}
 }
