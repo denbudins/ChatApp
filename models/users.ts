@@ -21,3 +21,8 @@ export class AnonymousUser extends User {
     super('ANONYMOUS');
   }
 }
+
+// Create and register platform user
+export const platformUser = new ServerUser();
+// Create and register anonymous user
+export const anonymousUser = new AnonymousUser();

@@ -1,5 +1,5 @@
 import 'colors';
-import { Server, ServerMessageCallback } from './server/server';
+import { Server, ServerMessageCallbackArgument } from './server/server';
 import { wait } from './utils/utils';
 
 (async () => {
@@ -21,16 +21,12 @@ import { wait } from './utils/utils';
     'kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum',
   ];
 
-  const msgCallbackFn = async ({ room, recipient, sender, msg }: ServerMessageCallback): Promise<void> => {
-    console.log(`SERVER replying`.green);
+  const msgCallbackFn = async ({ room, recipient, sender, msg }: ServerMessageCallbackArgument): Promise<void> => {
+    console.log(`SERVER replying ...`.gray);
 
     await wait(2000 * (1 + Math.random()));
 
-    if (sender?.userName === 'SERVER') {
-      console.log(`To "${recipient.userName}" ::: Announcement in room "${room.id}": ${msg.text}`.blue);
-    } else {
-      console.log(`To "${recipient.userName}" ::: "${sender?.userName}" posted in "${room.id}": "${msg.text}"`.white);
-    }
+    console.log(`${room.id}:${recipient.userName}" ::: "${sender?.userName}" posted: "${msg.text}"`.yellow);
   };
 
   const server: Server = new Server(msgCallbackFn);
@@ -38,10 +34,10 @@ import { wait } from './utils/utils';
   for (const msg of msgs) {
     await wait(50 * (1 + Math.random()));
 
-    console.log(`POSTing message: "${msg}"`.green);
+    console.log(`POSTing message: "${msg}"`.gray);
 
     server.postMessage(msg).then(() => {
-      console.log(`  > Message "${msg}" ACK!`.green);
+      console.log(`  > Message "${msg}" ACK!`.gray);
     });
   }
 })();

@@ -1,26 +1,25 @@
 import { Room } from '../models/room';
 import { Message } from '../models/message';
-import { User, ServerUser, AnonymousUser } from '../models/users';
+import { User } from '../models/users';
 import { splitOnRandomPieces } from '../utils/utils';
 
-export type ServerMessageCallback = { room: Room; recipient: User; sender?: User; msg: Message };
-
-const platformUser = new ServerUser(); // TODO: Make sure to register and use these users when appropriate
-const anonymousUser = new AnonymousUser();
+export type ServerMessageCallbackArgument = { room: Room; recipient: User; sender?: User; msg: Message };
+export type ServerMessageCallback = (options: ServerMessageCallbackArgument) => Promise<void>;
 
 export class Server {
   private rooms: Room[] = [];
 
-  constructor(private msgCallbackFn: (options: ServerMessageCallback) => Promise<void>) {}
+  constructor(private msgCallbackFn: (options: ServerMessageCallbackArgument) => Promise<void>) {}
 
   public async postMessage(msgSyntax: string): Promise<void> {
     // Parse message syntax
     let [senderUsername, _, roomId, message]: string[] = this.parseMessage(msgSyntax);
+    senderUsername = senderUsername || 'ANONYMOUS';
 
     // Get room
     let room: Room | undefined = this.rooms.find(({ id }) => id === roomId);
     if (room === undefined) {
-      room = new Room(roomId);
+      room = new Room(roomId, this.msgCallbackFn);
       this.rooms.push(room);
     }
 
@@ -36,17 +35,12 @@ export class Server {
       // Add newly joined user to room
       room.registerUser(senderUser);
       // Post user joined
-      let msgToSend: string = `"${senderUsername}" joined the room`;
-      this.sendMessageToRoom(room, msgToSend, platformUser);
+      let msgText: string = `"${senderUsername}" joined the room`;
+      room.postMessage(new Message(msgText));
     }
 
     // Post message
-    this.sendMessageToRoom(room, message, senderUser);
-  }
-
-  private sendMessageToRoom(room: Room, msgText: string, sender?: User): void {
-    const msg = new Message(msgText, sender);
-    room.postMessage(msg, this.msgCallbackFn);
+    room.postMessage(new Message(message, senderUser));
   }
 
   private parseMessage(inputMessage: string): string[] {
