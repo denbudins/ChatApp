@@ -1,5 +1,7 @@
 import { User } from './users';
 
 export class Message {
-  constructor(public anything: string | undefined, public message: string, public user: User | undefined, public messageTime: Date) {}
+  public time: Date = new Date();
+
+  constructor(public text: string, public sender?: User) {}
 }
