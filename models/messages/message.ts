@@ -1,4 +1,4 @@
-import { User, platformUser } from './users';
+import { User, platformUser } from '../users';
 
 export class Message {
   public time: Date = new Date();

@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "colors": "^1.4.0"
+    "colors": "^1.4.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.4"
   }
 }

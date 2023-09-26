@@ -1,6 +1,7 @@
 import { Room } from '../models/room';
-import { Message } from '../models/message';
+import { Message } from '../models/messages/message';
 import { User } from '../models/users';
+import { Command } from '../models/command/command';
 import { splitOnRandomPieces } from '../utils/utils';
 
 export type ServerMessageCallbackArgument = { room: Room; recipient: User; sender?: User; msg: Message };
@@ -17,18 +18,22 @@ export class Server {
     senderUsername = senderUsername || 'ANONYMOUS';
 
     // Get room
-    let room: Room | undefined = this.rooms.find(({ id }) => id === roomId);
+    let room: Room | undefined = this.rooms.find(({ uuid, id }) => uuid === roomId || id === roomId);
     if (room === undefined) {
       room = new Room(roomId, this.msgCallbackFn);
       this.rooms.push(room);
     }
 
     // Check if user joined room
-    let senderUser = User.isUserExistOnServer(senderUsername); // TODO: Check all users that ever existed on the entire server!
+    let senderUser = User.isUserExistOnServer(senderUsername);
     if (senderUser === undefined) {
       // Create new user
       senderUser = new User(senderUsername);
     }
+
+    // Check is command message
+    let command = new Command(this, room, senderUser);
+    if (command.isCommandExist(message)) return;
 
     // Check if user newly joined
     if (!room.isUserExist(senderUser.userName)) {
@@ -48,5 +53,25 @@ export class Server {
     parsedArray = [...splitOnRandomPieces(parsedArray[0], '@', 2), parsedArray[1]];
     parsedArray = [...splitOnRandomPieces(parsedArray[0], ':', 2), parsedArray[1], parsedArray[2]];
     return parsedArray;
+  }
+
+  public sendListOfAllRooms(currentRoom: Room, recipient: User) {
+    let userQueue = currentRoom.findUserQueue(recipient);
+    let msgText = `List rooms on server: \n`;
+    for (const room of this.rooms) {
+      msgText += `uuid: ${room.uuid} name:${room.id}\n`;
+    }
+    let msg = new Message(msgText.trim());
+    userQueue.addMessageToQueue(msg);
+  }
+
+  public renameUserInAllRooms(newUserName: string, sender: User) {
+    for (const room of this.rooms) {
+      if (room.isUserExist(sender.userName)) {
+        let msgText: string = `"${sender.userName}" changed username to ${newUserName}`;
+        room.postMessage(new Message(msgText));
+      }
+    }
+    sender.userName = newUserName;
   }
 }

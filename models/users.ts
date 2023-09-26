@@ -1,11 +1,14 @@
+import { v4 } from 'uuid';
 export class User {
   private static users: User[] = [];
+  public uuid: string;
 
   public static isUserExistOnServer(user: string): User | undefined {
-    return this.users.find(({ userName }) => userName === user);
+    return this.users.find(({ uuid, userName }) => uuid === user || userName === user);
   }
 
   constructor(public userName: string) {
+    this.uuid = v4();
     User.users.push(this);
   }
 }

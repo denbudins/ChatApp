@@ -1,7 +1,7 @@
-import { Message } from './message';
-import { User } from './users';
-import { Room } from './room';
-import { ServerMessageCallback } from '../server/server';
+import { Message } from '../message';
+import { User } from '../../users';
+import { Room } from '../../room';
+import { ServerMessageCallback } from '../../../server/server';
 
 export class MessageQueue {
   private _queue: Message[] = [];
@@ -9,9 +9,12 @@ export class MessageQueue {
 
   constructor(public room: Room, public user: User, private msgCallbackFn: ServerMessageCallback) {}
 
-  public addMessageToQueue(room: Room, msg: Message) {
+  public addMessageToQueue(msg: Message) {
+    // Clone message and sender to prevent edits post send
+    const msgClone = new Message(msg.text);
+    msgClone.sender = new User(msg.sender.userName);
     // Add to queue
-    this._queue.push(msg);
+    this._queue.push(msgClone);
     // Trigger queue processing
     this.processQueue();
   }
