@@ -1,31 +1,27 @@
-import { CommandInterface } from '../../../interfaces/command';
-import { Room } from '../../room';
-import { User } from '../../users';
-import { Server } from '../../../server/server';
-import { splitOnRandomPieces } from '../../../utils/utils';
+import { CommandArgument, CommandInterface } from '../interfaces/command';
+import { ServerUser } from '../../users';
 
 export class ListCommands implements CommandInterface {
-  public keyword: string = '/list';
+  public keyword: string = 'list';
 
-  public execute(commandParameters: string, server: Server, room: Room, user: User): boolean {
-    let [commandName, _]: string[] = splitOnRandomPieces(commandParameters, ' ', 2);
-    let isCommandExecute = false;
-    switch (commandName) {
+  public execute({ command, server, room, user, authenticated, msgCallbackFn }: CommandArgument): boolean {
+    switch (command) {
       case 'rooms':
-        server.sendListOfAllRooms(room, user);
-        isCommandExecute = true;
+        const serverUser = new ServerUser();
+        const message = server.sendListOfAllRooms(user);
+        if (message === undefined) break;
+        msgCallbackFn({ room: room, recipient: user, sender: serverUser, msg: message });
         break;
       case 'users':
         room.sendListOfUser(user);
-        isCommandExecute = true;
         break;
       case 'messages':
+        if (room.status === 'non-open' && !authenticated) break;
         room.resendAllMessagesToUser(user);
-        isCommandExecute = true;
         break;
       default:
-        break;
+        return false;
     }
-    return isCommandExecute;
+    return true;
   }
 }

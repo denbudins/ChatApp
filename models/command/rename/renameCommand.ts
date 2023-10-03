@@ -1,17 +1,12 @@
-import { CommandInterface } from '../../../interfaces/command';
-import { Room } from '../../room';
-import { User } from '../../users';
-import { Server } from '../../../server/server';
-import { splitOnRandomPieces } from '../../../utils/utils';
+import { CommandArgument, CommandInterface } from '../interfaces/command';
 
 export class RenameCommands implements CommandInterface {
-  public keyword: string = '/rename';
+  public keyword: string = 'rename';
 
-  public execute(commandParameters: string, server: Server, room: Room, user: User): boolean {
-    let [commandName, parameter]: string[] = splitOnRandomPieces(commandParameters, ' ', 2);
-    switch (commandName) {
+  public execute({ command, parameter, server, room, user, authenticated, msgCallbackFn }: CommandArgument): boolean {
+    switch (command) {
       case 'self':
-        server.renameUserInAllRooms(parameter, user);
+        server.renameUserInAllRooms(parameter, user, msgCallbackFn);
         break;
       case 'room':
         room.renameRoomName(parameter);

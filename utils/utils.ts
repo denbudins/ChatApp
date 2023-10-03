@@ -24,3 +24,13 @@ export function splitOnRandomPieces(stringToSplit: string, separator: string, li
   }
   return splittedArray;
 }
+
+export function parseMessage(inputMessage: string): string[] {
+  let parsedArray: string[];
+  if (inputMessage[0] !== '/') {
+    parsedArray = splitOnRandomPieces(inputMessage, ' ', 2);
+    parsedArray = [...splitOnRandomPieces(parsedArray[0], '@', 2), parsedArray[1]];
+    parsedArray = [...splitOnRandomPieces(parsedArray[0], ':', 2), parsedArray[1], parsedArray[2]];
+  } else parsedArray = ['', '', '', inputMessage];
+  return parsedArray;
+}

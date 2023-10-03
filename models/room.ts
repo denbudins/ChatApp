@@ -8,9 +8,11 @@ export class Room {
   private queues: MessageQueue[] = [];
   private messages: Message[] = [];
   public uuid: string;
+  public status: string;
 
-  constructor(public id: string, private msgCallbackFn: ServerMessageCallback) {
+  constructor(public name: string, private msgCallbackFn: ServerMessageCallback) {
     this.uuid = v4();
+    this.status = 'open';
   }
 
   public isUserExist(userForFind: string): boolean {
@@ -24,12 +26,17 @@ export class Room {
     return queue;
   }
 
-  public postMessage(msg: Message): void {
+  public postMessageToAllUsers(msg: Message): void {
     this.messages.push(msg);
     for (const user of this.queues) {
       // Add the message to a queue
       user.addMessageToQueue(msg);
     }
+  }
+
+  public postMessageToUser(msg: Message, userQueue: MessageQueue): void {
+    this.messages.push(msg);
+    userQueue.addMessageToQueue(msg);
   }
 
   public resendAllMessagesToUser(recipient: User) {
@@ -40,8 +47,12 @@ export class Room {
   }
 
   public sendListOfUser(recipient: User) {
-    let msgText: string = `The following users are in room ${this.id}:\n`;
+    let msgText: string = `The following users are in room ${this.name}:\n`;
+    const recipientHavePassword = recipient.password !== null ? true : false;
     for (const user of this.queues) {
+      if (!recipientHavePassword) {
+        if (user.user.password !== null) continue;
+      }
       msgText += `uuid: ${user.user.uuid} username: ${user.user.userName}\n`;
     }
     let userQueue = this.findUserQueue(recipient);
@@ -58,8 +69,8 @@ export class Room {
   }
 
   public renameRoomName(newName: string) {
-    let msg = new Message(`Room ${this.id} changed name to ${newName}`);
-    this.postMessage(msg);
-    this.id = newName;
+    let msg = new Message(`Room ${this.name} changed name to ${newName}`);
+    this.postMessageToAllUsers(msg);
+    this.name = newName;
   }
 }

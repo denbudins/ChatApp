@@ -2,76 +2,51 @@ import { Room } from '../models/room';
 import { Message } from '../models/messages/message';
 import { User } from '../models/users';
 import { Command } from '../models/command/command';
-import { splitOnRandomPieces } from '../utils/utils';
+
+import { UserService } from '../services/userService';
+
+import { parseMessage } from '../utils/utils';
+import { ServerServices } from '../services/serverService';
 
 export type ServerMessageCallbackArgument = { room: Room; recipient: User; sender?: User; msg: Message };
 export type ServerMessageCallback = (options: ServerMessageCallbackArgument) => Promise<void>;
 
 export class Server {
-  private rooms: Room[] = [];
-
-  constructor(private msgCallbackFn: (options: ServerMessageCallbackArgument) => Promise<void>) {}
+  constructor(private msgCallbackFn: (options: ServerMessageCallbackArgument) => Promise<void>, private serverService: ServerServices = new ServerServices()) {}
 
   public async postMessage(msgSyntax: string): Promise<void> {
     // Parse message syntax
-    let [senderUsername, _, roomId, message]: string[] = this.parseMessage(msgSyntax);
+    let [senderUsername, password, roomName, message]: string[] = parseMessage(msgSyntax);
     senderUsername = senderUsername || 'ANONYMOUS';
 
+    let room: Room | undefined = this.serverService.getRoom(roomName);
+    let senderUser: User | undefined = User.isUserExistOnServer(senderUsername);
+
+    // Check is command message
+    let command = new Command(this.serverService, room, senderUser, this.msgCallbackFn);
+    if (command.isCommandExist(message, password)) return;
+
     // Get room
-    let room: Room | undefined = this.rooms.find(({ uuid, id }) => uuid === roomId || id === roomId);
     if (room === undefined) {
-      room = new Room(roomId, this.msgCallbackFn);
-      this.rooms.push(room);
+      command.runCommand('post', 'room error', '', password);
+      return;
     }
 
     // Check if user joined room
-    let senderUser = User.isUserExistOnServer(senderUsername);
     if (senderUser === undefined) {
       // Create new user
-      senderUser = new User(senderUsername);
+      if (room.status === 'non-open') return;
+      senderUser = UserService.creatingNonRegisterUser(senderUsername);
+      command.user = senderUser;
     }
-
-    // Check is command message
-    let command = new Command(this, room, senderUser);
-    if (command.isCommandExist(message)) return;
 
     // Check if user newly joined
     if (!room.isUserExist(senderUser.userName)) {
       // Add newly joined user to room
       room.registerUser(senderUser);
-      // Post user joined
-      let msgText: string = `"${senderUsername}" joined the room`;
-      room.postMessage(new Message(msgText));
+      command.runCommand('post', 'join user', senderUser.userName, password);
     }
 
-    // Post message
-    room.postMessage(new Message(message, senderUser));
-  }
-
-  private parseMessage(inputMessage: string): string[] {
-    let parsedArray: string[] = splitOnRandomPieces(inputMessage, ' ', 2);
-    parsedArray = [...splitOnRandomPieces(parsedArray[0], '@', 2), parsedArray[1]];
-    parsedArray = [...splitOnRandomPieces(parsedArray[0], ':', 2), parsedArray[1], parsedArray[2]];
-    return parsedArray;
-  }
-
-  public sendListOfAllRooms(currentRoom: Room, recipient: User) {
-    let userQueue = currentRoom.findUserQueue(recipient);
-    let msgText = `List rooms on server: \n`;
-    for (const room of this.rooms) {
-      msgText += `uuid: ${room.uuid} name:${room.id}\n`;
-    }
-    let msg = new Message(msgText.trim());
-    userQueue.addMessageToQueue(msg);
-  }
-
-  public renameUserInAllRooms(newUserName: string, sender: User) {
-    for (const room of this.rooms) {
-      if (room.isUserExist(sender.userName)) {
-        let msgText: string = `"${sender.userName}" changed username to ${newUserName}`;
-        room.postMessage(new Message(msgText));
-      }
-    }
-    sender.userName = newUserName;
+    command.runCommand('post', 'send message', message, password);
   }
 }

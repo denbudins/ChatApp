@@ -2,6 +2,7 @@ import { v4 } from 'uuid';
 export class User {
   private static users: User[] = [];
   public uuid: string;
+  public password: string | null;
 
   public static isUserExistOnServer(user: string): User | undefined {
     return this.users.find(({ uuid, userName }) => uuid === user || userName === user);
@@ -9,6 +10,7 @@ export class User {
 
   constructor(public userName: string) {
     this.uuid = v4();
+    this.password = null;
     User.users.push(this);
   }
 }
