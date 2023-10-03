@@ -1,23 +1,23 @@
 import { CommandInterface } from './interfaces/command';
-import { ListCommands } from './list/listCommand';
-import { RenameCommands } from './rename/renameCommand';
+
+import { Server } from '../server';
 import { Room } from '../room';
 import { User } from '../users';
-import { splitOnRandomPieces } from '../../utils/utils';
-import { CreateCommand } from './create/createCommand';
-import { ServerMessageCallback } from '../../server/server';
-import { PostCommand } from './post/postCommand';
+
 import { UserService } from '../../services/userService';
-import { ServerServices } from '../../services/serverService';
+
+import { ListCommands } from './list/listCommand';
+import { RenameCommands } from './rename/renameCommand';
+import { CreateCommand } from './create/createCommand';
+import { PostCommand } from './post/postCommand';
+
+import { splitOnRandomPieces } from '../../utils/utils';
+
+import { ServerMessageCallback } from '../../server/server';
 
 export class Command {
   private static commands: CommandInterface[] = [new ListCommands(), new RenameCommands(), new CreateCommand(), new PostCommand()];
-  constructor(
-    private serverService: ServerServices,
-    private room: Room | undefined,
-    public user: User | undefined,
-    private msgCallbackFn: ServerMessageCallback,
-  ) {}
+  constructor(private server: Server, private room: Room | undefined, public user: User | undefined, private msgCallbackFn: ServerMessageCallback) {}
 
   public isCommandExist(commandTxt: string, password: string | null): boolean {
     let [commandName, commandParameter]: string[] = splitOnRandomPieces(commandTxt, ' ', 2);
@@ -29,7 +29,7 @@ export class Command {
         executeCommand.execute({
           command: command,
           parameter: parameter,
-          server: this.serverService,
+          server: this.server,
           room: this.room!,
           user: this.user!,
           authenticated: UserService.authentications(this.user!, password),
@@ -46,7 +46,7 @@ export class Command {
     executeCommand!.execute({
       command: subcommand,
       parameter: parameter,
-      server: this.serverService,
+      server: this.server,
       room: this.room!,
       user: this.user!,
       authenticated: UserService.authentications(this.user!, password),

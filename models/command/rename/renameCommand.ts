@@ -1,3 +1,4 @@
+import { ServerServices } from '../../../services/serverService';
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 
 export class RenameCommands implements CommandInterface {
@@ -6,7 +7,7 @@ export class RenameCommands implements CommandInterface {
   public execute({ command, parameter, server, room, user, authenticated, msgCallbackFn }: CommandArgument): boolean {
     switch (command) {
       case 'self':
-        server.renameUserInAllRooms(parameter, user, msgCallbackFn);
+        ServerServices.renameUserInAllRooms(server, parameter, user, msgCallbackFn);
         break;
       case 'room':
         room.renameRoomName(parameter);

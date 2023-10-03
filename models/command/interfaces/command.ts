@@ -1,13 +1,13 @@
+import { Server } from '../../server';
 import { Room } from '../../room';
 import { User } from '../../users';
 
 import { ServerMessageCallback } from '../../../server/server';
-import { ServerServices } from '../../../services/serverService';
 
 export type CommandArgument = {
   command: string;
   parameter: string;
-  server: ServerServices;
+  server: Server;
   room: Room;
   user: User;
   authenticated: boolean;

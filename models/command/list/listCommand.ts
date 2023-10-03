@@ -1,5 +1,6 @@
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 import { ServerUser } from '../../users';
+import { ServerServices } from '../../../services/serverService';
 
 export class ListCommands implements CommandInterface {
   public keyword: string = 'list';
@@ -8,7 +9,7 @@ export class ListCommands implements CommandInterface {
     switch (command) {
       case 'rooms':
         const serverUser = new ServerUser();
-        const message = server.sendListOfAllRooms(user);
+        const message = ServerServices.sendListOfAllRooms(server, user);
         if (message === undefined) break;
         msgCallbackFn({ room: room, recipient: user, sender: serverUser, msg: message });
         break;
