@@ -15,7 +15,7 @@ import { wait } from './utils/utils';
     'bobby@happy You might want to sing it note for note',
     'roger:12345@son Is there anybody in there?',
     'roger:12345@numb /list users',
-    'echo@numb /list users',
+    //'echo@numb /list users',
     "steve@son There'll be peace when you are done",
     "bobby@happy Don't worry,",
     'roger@numb Just nod if you can hear me',
@@ -40,18 +40,6 @@ import { wait } from './utils/utils';
     }
   };
 
-  const msgCallbackFn2 = async ({ room, recipient, sender, msg }: ServerMessageCallbackArgument): Promise<void> => {
-    console.log(`SERVER replying ...`.blue);
-
-    await wait(200 * (1 + Math.random()));
-
-    if (room === undefined) {
-      console.log(`"${sender?.userName}" posted: "${msg.text}"`.red);
-    } else {
-      console.log(`${room.name}:${recipient.userName}" ::: "${sender?.userName}" posted: "${msg.text}"`.red);
-    }
-  };
-
   const server: Server = new Server(msgCallbackFn);
 
   for (const msg of msgs) {
@@ -63,16 +51,4 @@ import { wait } from './utils/utils';
       console.log(`  > Message "${msg}" ACK!`.gray);
     });
   }
-
-  /*const server2: Server = new Server(msgCallbackFn2);
-
-  for (const msg of msgs) {
-    await wait(50 * (1 + Math.random()));
-
-    console.log(`POSTing message: "${msg}"`.gray);
-
-    await server2.postMessage(msg).then(() => {
-      console.log(`  > Message "${msg}" ACK!`.gray);
-    });
-  }*/
 })();

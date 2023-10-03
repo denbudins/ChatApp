@@ -2,7 +2,7 @@ import { Server as ServerModel } from '../models/server';
 import { Room } from '../models/room';
 import { Message } from '../models/messages/message';
 import { User } from '../models/users';
-import { Command } from '../models/command/command';
+import { Command } from '../command/command';
 
 import { UserService } from '../services/userService';
 

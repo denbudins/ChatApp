@@ -8,7 +8,7 @@ export class Room {
   private queues: MessageQueue[] = [];
   private messages: Message[] = [];
   public uuid: string;
-  public status: string;
+  public status: 'open' | 'non-open';
 
   constructor(public name: string, private msgCallbackFn: ServerMessageCallback) {
     this.uuid = v4();

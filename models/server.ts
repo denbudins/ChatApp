@@ -15,7 +15,7 @@ export class Server {
     return this.serverRooms.find(({ uuid, name }) => uuid === roomName || name === roomName);
   }
 
-  public getRoomsOnUser(userName: string) {
+  public getRoomsByUser(userName: string) {
     return this.serverRooms.filter(room => room.isUserExist(userName) === true);
   }
 }

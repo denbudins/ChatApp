@@ -1,9 +1,9 @@
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 
-import { UserService } from '../../../services/userService';
-import { RoomService } from '../../../services/roomService';
+import { UserService } from '../../services/userService';
+import { RoomService } from '../../services/roomService';
 
-import { splitOnRandomPieces } from '../../../utils/utils';
+import { splitOnRandomPieces } from '../../utils/utils';
 
 export class CreateCommand implements CommandInterface {
   public keyword: string = 'create';

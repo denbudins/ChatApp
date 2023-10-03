@@ -1,8 +1,8 @@
-import { Server } from '../../server';
-import { Room } from '../../room';
-import { User } from '../../users';
+import { Server } from '../../models/server';
+import { Room } from '../../models/room';
+import { User } from '../../models/users';
 
-import { ServerMessageCallback } from '../../../server/server';
+import { ServerMessageCallback } from '../../server/server';
 
 export type CommandArgument = {
   command: string;

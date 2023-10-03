@@ -1,7 +1,7 @@
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 
-import { Message } from '../../messages/message';
-import { ServerUser } from '../../users';
+import { Message } from '../../models/messages/message';
+import { ServerUser } from '../../models/users';
 
 export class PostCommand implements CommandInterface {
   public keyword: string = 'post';

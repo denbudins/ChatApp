@@ -1,19 +1,19 @@
 import { CommandInterface } from './interfaces/command';
 
-import { Server } from '../server';
-import { Room } from '../room';
-import { User } from '../users';
+import { Server } from '../models/server';
+import { Room } from '../models/room';
+import { User } from '../models/users';
 
-import { UserService } from '../../services/userService';
+import { UserService } from '../services/userService';
 
 import { ListCommands } from './list/listCommand';
 import { RenameCommands } from './rename/renameCommand';
 import { CreateCommand } from './create/createCommand';
 import { PostCommand } from './post/postCommand';
 
-import { splitOnRandomPieces } from '../../utils/utils';
+import { splitOnRandomPieces } from '../utils/utils';
 
-import { ServerMessageCallback } from '../../server/server';
+import { ServerMessageCallback } from '../server/server';
 
 export class Command {
   private static commands: CommandInterface[] = [new ListCommands(), new RenameCommands(), new CreateCommand(), new PostCommand()];

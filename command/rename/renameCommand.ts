@@ -1,4 +1,4 @@
-import { ServerServices } from '../../../services/serverService';
+import { ServerServices } from '../../services/serverService';
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 
 export class RenameCommands implements CommandInterface {

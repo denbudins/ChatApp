@@ -1,6 +1,7 @@
 import { CommandArgument, CommandInterface } from '../interfaces/command';
-import { ServerUser } from '../../users';
-import { ServerServices } from '../../../services/serverService';
+
+import { ServerUser } from '../../models/users';
+import { ServerServices } from '../../services/serverService';
 
 export class ListCommands implements CommandInterface {
   public keyword: string = 'list';
