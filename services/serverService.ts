@@ -1,19 +1,18 @@
 import { Server } from '../models/server';
 import { User } from '../models/users';
-import { Command } from '../command/command';
 import { Message } from '../models/messages/message';
 
-import { ServerMessageCallback } from '../server/server';
+import { PostUserRename } from '../command/post/postCommand';
 
 export class ServerServices {
-  public static renameUserInAllRooms(server: Server, newUserName: string, sender: User, msgCallbackFn: ServerMessageCallback) {
+  public static renameUserInAllRooms(server: Server, newUserName: string, sender: User) {
     const rooms = server.getRooms();
     if (sender !== undefined) {
       for (const room of rooms) {
         if (room.isUserExist(sender.userName)) {
-          const command = new Command(server, room, sender, msgCallbackFn);
           const msgText: string = `"${sender.userName}" changed username to ${newUserName}`;
-          command.runCommand('post', 'user rename', msgText, sender.password);
+          const postRename = new PostUserRename();
+          postRename.execute({ parameter: [msgText], room: room, user: sender });
         }
       }
       sender.userName = newUserName;

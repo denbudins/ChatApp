@@ -7,12 +7,16 @@ import { Command } from '../command/command';
 import { UserService } from '../services/userService';
 
 import { parseMessage } from '../utils/utils';
+import { PostJoinUser, PostRoomError, PostSendMessage } from '../command/post/postCommand';
+import { RoomService } from '../services/roomService';
 
 export type ServerMessageCallbackArgument = { room: Room; recipient: User; sender?: User; msg: Message };
 export type ServerMessageCallback = (options: ServerMessageCallbackArgument) => Promise<void>;
 
 export class Server {
-  constructor(private msgCallbackFn: (options: ServerMessageCallbackArgument) => Promise<void>, private server: ServerModel = new ServerModel()) {}
+  constructor(private msgCallbackFn: (options: ServerMessageCallbackArgument) => Promise<void>, private server: ServerModel = new ServerModel()) {
+    RoomService.msgCallBackFn = msgCallbackFn;
+  }
 
   public async postMessage(msgSyntax: string): Promise<void> {
     // Parse message syntax
@@ -23,12 +27,17 @@ export class Server {
     let senderUser: User | undefined = User.isUserExistOnServer(senderUsername);
 
     // Check is command message
-    let command = new Command(this.server, room, senderUser, this.msgCallbackFn);
+    let command = new Command(this.server, room, senderUser);
     if (command.isCommandExist(message, password)) return;
 
     // Get room
     if (room === undefined) {
-      command.runCommand('post', 'room error', '', password);
+      const roomErrorMsg = new PostRoomError();
+      roomErrorMsg.execute({
+        room: room!,
+        user: senderUser!,
+        msgCallbackFn: this.msgCallbackFn,
+      });
       return;
     }
 
@@ -44,9 +53,11 @@ export class Server {
     if (!room.isUserExist(senderUser.userName)) {
       // Add newly joined user to room
       room.registerUser(senderUser);
-      command.runCommand('post', 'join user', senderUser.userName, password);
+      const userJoinMsg = new PostJoinUser();
+      userJoinMsg.execute({ parameter: [senderUser.userName], room: room, authenticated: UserService.authentications(senderUser, password) });
     }
 
-    command.runCommand('post', 'send message', message, password);
+    const postMsg = new PostSendMessage();
+    postMsg.execute({ parameter: [message], room: room, user: senderUser, authenticated: UserService.authentications(senderUser, password) });
   }
 }

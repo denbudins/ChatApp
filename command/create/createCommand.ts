@@ -1,28 +1,32 @@
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 
+import { CommandList } from '../commandsList';
+
 import { UserService } from '../../services/userService';
 import { RoomService } from '../../services/roomService';
 
-import { splitOnRandomPieces } from '../../utils/utils';
+export class CreateUser implements CommandInterface {
+  public keyword: string = 'create user';
 
-export class CreateCommand implements CommandInterface {
-  public keyword: string = 'create';
-
-  public execute({ command, parameter, server, authenticated, msgCallbackFn }: CommandArgument): boolean {
-    switch (command) {
-      case 'user':
-        const [userName, password] = splitOnRandomPieces(parameter, ' ', 2);
-        UserService.createNewRegisterUser(userName, password);
-        break;
-      case 'room':
-        const [roomName, roomStatus]: string[] = splitOnRandomPieces(parameter, ' ', 2);
-        if (roomStatus === 'non-open' && !authenticated) break;
-        const newRoom = RoomService.creatingNewRoom(roomName, roomStatus, msgCallbackFn);
-        server.addNewRoom(newRoom);
-        break;
-      default:
-        return false;
-    }
+  public execute({ parameter }: CommandArgument): boolean {
+    const [userName, password] = parameter!;
+    if (password !== '' && password !== undefined) UserService.createNewRegisterUser(userName, password);
+    else UserService.creatingNonRegisterUser(userName);
     return true;
   }
 }
+
+export class CreateRoom implements CommandInterface {
+  public keyword: string = 'create room';
+
+  public execute({ parameter, server, authenticated }: CommandArgument): boolean {
+    const [roomName, roomStatus]: string[] = parameter!;
+    if (roomStatus === 'non-open' && !authenticated) return false;
+    const newRoom = RoomService.creatingNewRoom(roomName, roomStatus);
+    server!.addNewRoom(newRoom);
+    return true;
+  }
+}
+
+CommandList.addCommand(new CreateUser());
+CommandList.addCommand(new CreateRoom());

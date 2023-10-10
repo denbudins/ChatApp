@@ -9,11 +9,12 @@ export class UserService {
   static createNewRegisterUser(userName: string, password: string): User {
     const user = new User(userName);
     user.password = password;
+    user.isUserRegister = true;
     return user;
   }
 
   static authentications(user: User, password: string | null): boolean {
-    if (user === undefined || user.password !== password) return false;
+    if (user === undefined || user.password !== password || !user.isUserRegister) return false;
     return true;
   }
 }

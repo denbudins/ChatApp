@@ -3,9 +3,11 @@ import { Room } from '../models/room';
 import { ServerMessageCallback } from '../server/server';
 
 export class RoomService {
-  static creatingNewRoom(roomName: string, roomStatus: string, msgCallbackFn: ServerMessageCallback) {
-    let newRoom: Room = new Room(roomName, msgCallbackFn);
-    if (roomStatus !== '') newRoom.status = 'non-open';
+  public static msgCallBackFn: ServerMessageCallback;
+
+  static creatingNewRoom(roomName: string, roomStatus: string) {
+    let newRoom: Room = new Room(roomName, this.msgCallBackFn);
+    if (roomStatus === 'non-open') newRoom.status = 'non-open';
     return newRoom;
   }
 }

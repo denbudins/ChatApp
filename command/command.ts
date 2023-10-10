@@ -1,56 +1,35 @@
-import { CommandInterface } from './interfaces/command';
+import '../command/create/createCommand';
+import '../command/list/listCommand';
+import '../command/post/postCommand';
+import '../command/rename/renameCommand';
 
+import { CommandList } from './commandsList';
 import { Server } from '../models/server';
 import { Room } from '../models/room';
 import { User } from '../models/users';
 
 import { UserService } from '../services/userService';
 
-import { ListCommands } from './list/listCommand';
-import { RenameCommands } from './rename/renameCommand';
-import { CreateCommand } from './create/createCommand';
-import { PostCommand } from './post/postCommand';
-
-import { splitOnRandomPieces } from '../utils/utils';
-
-import { ServerMessageCallback } from '../server/server';
-
 export class Command {
-  private static commands: CommandInterface[] = [new ListCommands(), new RenameCommands(), new CreateCommand(), new PostCommand()];
-  constructor(private server: Server, private room: Room | undefined, public user: User | undefined, private msgCallbackFn: ServerMessageCallback) {}
+  constructor(private server: Server, private room: Room | undefined, public user: User | undefined) {}
 
   public isCommandExist(commandTxt: string, password: string | null): boolean {
-    let [commandName, commandParameter]: string[] = splitOnRandomPieces(commandTxt, ' ', 2);
-    let executeCommand = Command.commands.find(command => command.keyword === commandName.substring(1));
+    let parameterArray: string[] = commandTxt.split(' ');
+    const command = `${parameterArray[0].substring(1) + ' ' + parameterArray[1]}`;
+    let executeCommand = CommandList.commandList.find(commands => commands.keyword === command);
     if (executeCommand !== undefined) {
-      const [command, parameter]: string[] = splitOnRandomPieces(commandParameter, ' ', 2);
       // If command is execute return true
       if (
         executeCommand.execute({
-          command: command,
-          parameter: parameter,
+          parameter: parameterArray.splice(2),
           server: this.server,
           room: this.room!,
           user: this.user!,
           authenticated: UserService.authentications(this.user!, password),
-          msgCallbackFn: this.msgCallbackFn,
         })
       )
         return true;
     }
     return false;
-  }
-
-  public runCommand(commandName: string, subcommand: string, parameter: string, password: string | null): void {
-    let executeCommand = Command.commands.find(command => command.keyword === commandName);
-    executeCommand!.execute({
-      command: subcommand,
-      parameter: parameter,
-      server: this.server,
-      room: this.room!,
-      user: this.user!,
-      authenticated: UserService.authentications(this.user!, password),
-      msgCallbackFn: this.msgCallbackFn,
-    });
   }
 }
