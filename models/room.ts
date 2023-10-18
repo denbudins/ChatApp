@@ -5,7 +5,7 @@ import { MessageQueue } from './messages/queue/messageQueue';
 import { ServerMessageCallback } from '../server/server';
 
 export class Room {
-  private queues: MessageQueue[] = [];
+  public queues: MessageQueue[] = [];
   private messages: Message[] = [];
   public uuid: string;
   public status: 'open' | 'non-open';

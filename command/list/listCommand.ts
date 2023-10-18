@@ -1,16 +1,15 @@
 import { CommandArgument, CommandInterface } from '../interfaces/command';
 
 import { ServerUser } from '../../models/users';
-import { ServerServices } from '../../services/serverService';
+import { serverService } from '../../services/serverService';
 import { CommandList } from '../commandsList';
 
 export class ListRooms implements CommandInterface {
   public keyword: string = 'list rooms';
 
-  public execute({ server, room, user, msgCallbackFn }: CommandArgument): boolean {
-    const serverUser = new ServerUser();
-    const message = ServerServices.sendListOfAllRooms(server!, user!);
-    if (message === undefined) msgCallbackFn!({ room: room!, recipient: user!, sender: serverUser, msg: message! });
+  public execute({ user }: CommandArgument): boolean {
+    let message = serverService.sendListOfAllRooms(user!);
+    if (message !== undefined) serverService.sendMsg(user!, message);
     return true;
   }
 }

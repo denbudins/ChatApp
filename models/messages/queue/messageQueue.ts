@@ -2,6 +2,7 @@ import { Message } from '../message';
 import { User } from '../../users';
 import { Room } from '../../room';
 import { ServerMessageCallback } from '../../../server/server';
+import { ServerServices } from '../../../services/serverService';
 
 export class MessageQueue {
   private _queue: Message[] = [];
@@ -20,13 +21,23 @@ export class MessageQueue {
   }
 
   private async processQueue() {
-    if (this._processing) return;
+    if (this._processing) {
+      await ServerServices.refreshServerStatus();
+      return;
+    }
 
     this._processing = true;
     while (this._queue.length) {
-      const msg = this._queue.shift()!;
+      const msg = this._queue[0]!;
       await this.msgCallbackFn({ room: this.room, recipient: this.user, sender: msg.sender, msg: msg });
+      await ServerServices.refreshServerStatus();
+      this._queue.shift()!;
     }
     this._processing = false;
+    await ServerServices.refreshServerStatus();
+  }
+
+  public getQueueLength(): number {
+    return this._queue.length;
   }
 }

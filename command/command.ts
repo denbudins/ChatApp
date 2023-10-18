@@ -13,12 +13,13 @@ import { UserService } from '../services/userService';
 export class Command {
   constructor(private server: Server, private room: Room | undefined, public user: User | undefined) {}
 
-  public isCommandExist(commandTxt: string, password: string | null): boolean {
+  public isCommandExist(commandTxt: string, userName: string, password: string | null): boolean {
     let parameterArray: string[] = commandTxt.split(' ');
     const command = `${parameterArray[0].substring(1) + ' ' + parameterArray[1]}`;
     let executeCommand = CommandList.commandList.find(commands => commands.keyword === command);
     if (executeCommand !== undefined) {
       // If command is execute return true
+      if (executeCommand.keyword === 'create room' && this.user === undefined) this.user = new User(userName);
       if (
         executeCommand.execute({
           parameter: parameterArray.splice(2),

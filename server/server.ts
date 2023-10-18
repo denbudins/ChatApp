@@ -6,9 +6,10 @@ import { Command } from '../command/command';
 
 import { UserService } from '../services/userService';
 
-import { parseMessage } from '../utils/utils';
+import { parseMessage, wait } from '../utils/utils';
 import { PostJoinUser, PostRoomError, PostSendMessage } from '../command/post/postCommand';
 import { RoomService } from '../services/roomService';
+import { ServerServices, serverService } from '../services/serverService';
 
 export type ServerMessageCallbackArgument = { room: Room; recipient: User; sender?: User; msg: Message };
 export type ServerMessageCallback = (options: ServerMessageCallbackArgument) => Promise<void>;
@@ -16,6 +17,7 @@ export type ServerMessageCallback = (options: ServerMessageCallbackArgument) => 
 export class Server {
   constructor(private msgCallbackFn: (options: ServerMessageCallbackArgument) => Promise<void>, private server: ServerModel = new ServerModel()) {
     RoomService.msgCallBackFn = msgCallbackFn;
+    ServerServices.initialingServer(this.server, this.msgCallbackFn);
   }
 
   public async postMessage(msgSyntax: string): Promise<void> {
@@ -28,7 +30,7 @@ export class Server {
 
     // Check is command message
     let command = new Command(this.server, room, senderUser);
-    if (command.isCommandExist(message, password)) return;
+    if (command.isCommandExist(message, senderUser === undefined ? senderUsername : senderUser.userName, password)) return;
 
     // Get room
     if (room === undefined) {
@@ -59,5 +61,22 @@ export class Server {
 
     const postMsg = new PostSendMessage();
     postMsg.execute({ parameter: [message], room: room, user: senderUser, authenticated: UserService.authentications(senderUser, password) });
+  }
+
+  public async waitForServerIdle(): Promise<void> {
+    const pollingInterval = 500;
+    let serverStatus = await ServerServices.refreshServerStatus();
+
+    while (!serverStatus.idle) {
+      let serverStatus = await ServerServices.refreshServerStatus();
+
+      if (serverStatus.idle) {
+        // Server is idle, break out of the loop
+        return;
+      }
+
+      // Server is not idle, wait for the polling interval before checking again
+      await wait(pollingInterval);
+    }
   }
 }

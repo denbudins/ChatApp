@@ -1,7 +1,7 @@
 import { Room } from '../models/room';
 
 export class Server {
-  constructor(public serverRooms: Room[] = []) {}
+  constructor(public serverRooms: Room[] = [], public serverStatus = { idle: true, queueLength: 0 }) {}
 
   public addNewRoom(room: Room) {
     this.serverRooms.push(room);

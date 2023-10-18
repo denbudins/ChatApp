@@ -23,12 +23,12 @@ export async function msgCallbackFn({ room, recipient, sender, msg }: ServerMess
     '/create user roger 12345',
     'roger:12345 /create room son non-open',
     'steve@son Carry on, my wayward son',
-    //'echo@numb /rename self neho',
-    //'bobby@happy You might want to sing it note for note',
-    //'roger:12345@son Is there anybody in there?',
-    //'roger:12345@numb /list users',
-    //'echo@numb /list users',
-    //"steve@son There'll be peace when you are done",
+    'echo@numb /rename self neho',
+    'bobby@happy You might want to sing it note for note',
+    'roger:12345@son Is there anybody in there?',
+    'roger:12345@numb /list users',
+    'echo@numb /list users',
+    "steve@son There'll be peace when you are done",
     "bobby@happy Don't worry,",
     'roger@numb Just nod if you can hear me',
     'roger:12345@son /list messages',
@@ -37,7 +37,7 @@ export async function msgCallbackFn({ room, recipient, sender, msg }: ServerMess
     'steve@son /rename room sonne',
     'roger@numb Is there anyone home?',
     'kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum',
-    'roger@son /list rooms',
+    //'roger@son /list rooms',
   ];
 
   const server: Server = new Server(msgCallbackFn);
@@ -51,4 +51,6 @@ export async function msgCallbackFn({ room, recipient, sender, msg }: ServerMess
       console.log(`  > Message "${msg}" ACK!`.gray);
     });
   }
+
+  await server.waitForServerIdle();
 })();
